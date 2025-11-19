@@ -74,8 +74,19 @@ public class Evaluator {
                 continue;
             }
 
+            // Обработка открывающей скобки
+            if (currentChar == '(') {
+                operators.push(currentChar);
+            }
+            // Обработка закрывающей скобки
+            else if (currentChar == ')') {
+                while (!operators.isEmpty() && operators.peek() != '(') {
+                    values.push(calculate(operators.pop(), values.pop(), values.pop()));
+                }
+                operators.pop(); // Удаляем открывающую скобку
+            }
             // Обработка чисел
-            if (Character.isDigit(currentChar) || currentChar == '.') {
+            else if (Character.isDigit(currentChar) || currentChar == '.') {
                 StringBuilder numberBuilder = new StringBuilder();
                 while (index < expr.length() && (Character.isDigit(expr.charAt(index)) || expr.charAt(index) == '.')) {
                     numberBuilder.append(expr.charAt(index++));
@@ -93,14 +104,16 @@ public class Evaluator {
             }
             // Обработка операторов
             else if (operatorPrecedence.containsKey(currentChar)) {
-                while (!operators.isEmpty() && operatorPrecedence.get(operators.peek()) >= operatorPrecedence.get(currentChar)) {
+                while (!operators.isEmpty() && operators.peek() != '(' &&
+                        operatorPrecedence.get(operators.peek()) >= operatorPrecedence.get(currentChar)) {
                     values.push(calculate(operators.pop(), values.pop(), values.pop()));
                 }
                 operators.push(currentChar);
             }
         }
 
-        while (!operators.isEmpty()) {            values.push(calculate(operators.pop(), values.pop(), values.pop()));
+        while (!operators.isEmpty()) {
+            values.push(calculate(operators.pop(), values.pop(), values.pop()));
         }
 
         return values.pop();
@@ -120,4 +133,3 @@ public class Evaluator {
         return evaluate(expression);
     }
 }
-
